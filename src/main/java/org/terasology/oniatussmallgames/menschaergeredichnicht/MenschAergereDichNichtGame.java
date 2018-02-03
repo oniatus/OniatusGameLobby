@@ -44,6 +44,11 @@ public class MenschAergereDichNichtGame {
                 possibleActions.add(new GameAction(6, 27));
                 possibleActions.add(new GameAction(7, 27));
                 possibleActions.add(new GameAction(8, 27));
+            }else if (playerOnTurn == PlayerColor.BLUE){
+                possibleActions.add(new GameAction(13, 37));
+                possibleActions.add(new GameAction(14, 37));
+                possibleActions.add(new GameAction(15, 37));
+                possibleActions.add(new GameAction(16, 37));
             }
         }
         if (numberOfAttemptsToLeaveSpawn++ == 3) {

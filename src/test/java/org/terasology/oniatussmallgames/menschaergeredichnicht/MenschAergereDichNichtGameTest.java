@@ -83,6 +83,15 @@ public class MenschAergereDichNichtGameTest {
         verifyGameActionFromTo(possibleActions.get(2),7,27);
         verifyGameActionFromTo(possibleActions.get(3),8,27);
     }
+    @Test
+    public void shouldSpawnBluePiecesOnSix() throws Exception {
+        game.setPlayerOnTurn(PlayerColor.BLUE);
+        List<GameAction> possibleActions = game.findPossibleActions(6);
+        verifyGameActionFromTo(possibleActions.get(0),13,37);
+        verifyGameActionFromTo(possibleActions.get(1),14,37);
+        verifyGameActionFromTo(possibleActions.get(2),15,37);
+        verifyGameActionFromTo(possibleActions.get(3),16,37);
+    }
 
     private void failToLeaveSpawnThreeTimes() {
         for (int i = 0; i < 3; i++) {
