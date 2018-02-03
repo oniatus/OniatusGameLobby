@@ -1,0 +1,11 @@
+{
+    "id" : "OniatusSmallGames",
+    "version" : "0.0.1",
+    "author" : "",
+    "displayName" : "OniatusSmallGames",
+    "description" : "",
+    "dependencies" : [
+        {"id": "engine", "minVersion": "1.5.1"}
+        ],
+    "serverSideOnly" : false
+}
