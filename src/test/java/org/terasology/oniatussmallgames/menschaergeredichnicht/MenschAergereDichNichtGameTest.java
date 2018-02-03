@@ -77,6 +77,11 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldSpawnYellowPiecesOnSix() throws Exception {
         game.setPlayerOnTurn(PlayerColor.YELLOW);
+        List<GameAction> possibleActions = game.findPossibleActions(6);
+        verifyGameActionFromTo(possibleActions.get(0),5,27);
+        verifyGameActionFromTo(possibleActions.get(1),6,27);
+        verifyGameActionFromTo(possibleActions.get(2),7,27);
+        verifyGameActionFromTo(possibleActions.get(3),8,27);
     }
 
     private void failToLeaveSpawnThreeTimes() {

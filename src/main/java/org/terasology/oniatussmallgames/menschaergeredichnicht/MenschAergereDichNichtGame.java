@@ -34,10 +34,17 @@ public class MenschAergereDichNichtGame {
     public List<GameAction> findPossibleActions(int diceResult) {
         ArrayList<GameAction> possibleActions = new ArrayList<>();
         if (diceResult == 6) {
-            possibleActions.add(new GameAction(1, 17));
-            possibleActions.add(new GameAction(2, 17));
-            possibleActions.add(new GameAction(3, 17));
-            possibleActions.add(new GameAction(4, 17));
+            if (playerOnTurn == PlayerColor.GREEN) {
+                possibleActions.add(new GameAction(1, 17));
+                possibleActions.add(new GameAction(2, 17));
+                possibleActions.add(new GameAction(3, 17));
+                possibleActions.add(new GameAction(4, 17));
+            } else if (playerOnTurn == PlayerColor.YELLOW) {
+                possibleActions.add(new GameAction(5, 27));
+                possibleActions.add(new GameAction(6, 27));
+                possibleActions.add(new GameAction(7, 27));
+                possibleActions.add(new GameAction(8, 27));
+            }
         }
         if (numberOfAttemptsToLeaveSpawn++ == 3) {
             nextPlayer();
