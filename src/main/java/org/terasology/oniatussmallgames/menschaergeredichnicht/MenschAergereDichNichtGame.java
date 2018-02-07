@@ -1,9 +1,6 @@
 package org.terasology.oniatussmallgames.menschaergeredichnicht;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MenschAergereDichNichtGame {
@@ -13,6 +10,11 @@ public class MenschAergereDichNichtGame {
     public static final int OFFSET_SPAWN_RED = 9;
     public static final int OFFSET_SPAWN_BLUE = 13;
     public static final int FIRST_FIELD_OFFSET = 1;
+    public static final int BOARD_BEGIN_INDEX = 17;
+
+    public void teleportPiece(int fromPosition, int toPosition) {
+        movePiece(fromPosition, toPosition);
+    }
 
     private static class Piece {
         private PlayerColor playerColor;
@@ -86,13 +88,22 @@ public class MenschAergereDichNichtGame {
                 possibleActions.add(new GameAction(10, 47));
                 possibleActions.add(new GameAction(11, 47));
                 possibleActions.add(new GameAction(12, 47));
-
             }
+        } else {
+            possibleActions.addAll(findPossibleActionsForPiecesOnBoard(diceResult));
         }
         if (numberOfAttemptsToLeaveSpawn++ == 3) {
             nextPlayer();
         }
         return possibleActions;
+    }
+
+    private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
+        return piecePositions.entrySet().stream()
+                .filter(e -> e.getValue().getPlayerColor() == playerOnTurn)
+                .filter(e -> e.getKey() >= BOARD_BEGIN_INDEX)
+                .map(e -> new GameAction(e.getKey(), e.getKey() + diceResult))
+                .collect(Collectors.toList());
     }
 
     private void nextPlayer() {
@@ -121,7 +132,13 @@ public class MenschAergereDichNichtGame {
     }
 
     public void execute(GameAction gameAction) {
-        Piece pieceToMove = piecePositions.remove(gameAction.getFromPosition());
-        piecePositions.put(gameAction.getToPosition(), pieceToMove);
+        int fromPosition = gameAction.getFromPosition();
+        int toPosition = gameAction.getToPosition();
+        movePiece(fromPosition, toPosition);
+    }
+
+    private void movePiece(int fromPosition, int toPosition) {
+        Piece pieceToMove = piecePositions.remove(fromPosition);
+        piecePositions.put(toPosition, pieceToMove);
     }
 }

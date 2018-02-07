@@ -110,6 +110,15 @@ public class MenschAergereDichNichtGameTest {
         assertEquals(17,game.getPiecePosition(PlayerColor.GREEN,0));
     }
 
+    @Test
+    public void lessThanSixAllowsOnlyPieceOnBoardToMove() throws Exception {
+        game.teleportPiece(1,17);
+        List<GameAction> possibleActions = game.findPossibleActions(1);
+        assertEquals(1,possibleActions.size());
+        assertEquals(17,possibleActions.get(0).getFromPosition());
+        assertEquals(18,possibleActions.get(0).getToPosition());
+    }
+
     private void failToLeaveSpawnThreeTimes() {
         for (int i = 0; i < 3; i++) {
             game.findPossibleActions(1);
