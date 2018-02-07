@@ -1,7 +1,10 @@
 package org.terasology.oniatussmallgames.menschaergeredichnicht;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MenschAergereDichNichtGame {
 
@@ -9,23 +12,51 @@ public class MenschAergereDichNichtGame {
     public static final int OFFSET_SPAWN_YELLOW = 5;
     public static final int OFFSET_SPAWN_RED = 9;
     public static final int OFFSET_SPAWN_BLUE = 13;
+    public static final int FIRST_FIELD_OFFSET = 1;
 
+    private static class Piece {
+        private PlayerColor playerColor;
+        private int index;
+
+        public Piece(PlayerColor playerColor, int index) {
+            this.playerColor = playerColor;
+            this.index = index;
+        }
+
+        public PlayerColor getPlayerColor() {
+            return playerColor;
+        }
+
+        public void setPlayerColor(PlayerColor playerColor) {
+            this.playerColor = playerColor;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+    }
+
+    private Map<Integer, Piece> piecePositions = new HashMap<>();
+
+    public MenschAergereDichNichtGame() {
+        PlayerColor[] playerColors = new PlayerColor[]{PlayerColor.GREEN, PlayerColor.YELLOW, PlayerColor.RED, PlayerColor.BLUE};
+        int position = FIRST_FIELD_OFFSET;
+        for (int pieceIndex = 0; pieceIndex < 4; pieceIndex++) {
+            for (int pieceOffset = 0; pieceOffset < 4; pieceOffset++) {
+                piecePositions.put(position++, new Piece(playerColors[pieceIndex], pieceOffset));
+            }
+        }
+    }
 
     private PlayerColor playerOnTurn = PlayerColor.GREEN;
     private int numberOfAttemptsToLeaveSpawn = 1;
 
     public int getPiecePosition(PlayerColor playerColor, int pieceNumber) {
-        switch (playerColor) {
-            case GREEN:
-                return pieceNumber + OFFSET_SPAWN_GREEN;
-            case YELLOW:
-                return pieceNumber + OFFSET_SPAWN_YELLOW;
-            case RED:
-                return pieceNumber + OFFSET_SPAWN_RED;
-            case BLUE:
-                return pieceNumber + OFFSET_SPAWN_BLUE;
-        }
-        throw new RuntimeException();
+        return piecePositions.entrySet().stream().filter(e -> e.getValue().getPlayerColor() == playerColor && e.getValue().getIndex() == pieceNumber).map(Map.Entry::getKey).findFirst().get();
     }
 
     public PlayerColor getPlayerColorOnTurn() {
@@ -87,5 +118,10 @@ public class MenschAergereDichNichtGame {
     public void setPlayerOnTurn(PlayerColor playerColor) {
         this.playerOnTurn = playerColor;
         numberOfAttemptsToLeaveSpawn = 1;
+    }
+
+    public void execute(GameAction gameAction) {
+        Piece pieceToMove = piecePositions.remove(gameAction.getFromPosition());
+        piecePositions.put(gameAction.getToPosition(), pieceToMove);
     }
 }

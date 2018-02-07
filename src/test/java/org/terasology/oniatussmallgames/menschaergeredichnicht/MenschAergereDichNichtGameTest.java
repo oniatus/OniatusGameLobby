@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.terasology.oniatussmallgames.menschaergeredichnicht.MenschAergereDichNichtGame.*;
 
@@ -102,6 +101,13 @@ public class MenschAergereDichNichtGameTest {
         verifyGameActionFromTo(possibleActions.get(1), 10, 47);
         verifyGameActionFromTo(possibleActions.get(2), 11, 47);
         verifyGameActionFromTo(possibleActions.get(3), 12, 47);
+    }
+
+    @Test
+    public void shouldMovePieceToSpawn() throws Exception {
+        List<GameAction> possibleActions = game.findPossibleActions(6);
+        game.execute(possibleActions.get(0));
+        assertEquals(17,game.getPiecePosition(PlayerColor.GREEN,0));
     }
 
     private void failToLeaveSpawnThreeTimes() {
