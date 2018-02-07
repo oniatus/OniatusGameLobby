@@ -17,8 +17,8 @@ public class MenschAergereDichNichtGame {
     }
 
     private static class Piece {
-        private PlayerColor playerColor;
-        private int index;
+        private final PlayerColor playerColor;
+        private final int index;
 
         public Piece(PlayerColor playerColor, int index) {
             this.playerColor = playerColor;
@@ -29,27 +29,23 @@ public class MenschAergereDichNichtGame {
             return playerColor;
         }
 
-        public void setPlayerColor(PlayerColor playerColor) {
-            this.playerColor = playerColor;
-        }
-
         public int getIndex() {
             return index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
         }
     }
 
     private Map<Integer, Piece> piecePositions = new HashMap<>();
 
     public MenschAergereDichNichtGame() {
-        PlayerColor[] playerColors = new PlayerColor[]{PlayerColor.GREEN, PlayerColor.YELLOW, PlayerColor.RED, PlayerColor.BLUE};
-        int position = FIRST_FIELD_OFFSET;
-        for (int pieceIndex = 0; pieceIndex < 4; pieceIndex++) {
+        initializePiecesOnSpawn();
+    }
+
+    private void initializePiecesOnSpawn() {
+        PlayerColor[] playerColorsInSpawnOrder = new PlayerColor[]{PlayerColor.GREEN, PlayerColor.YELLOW, PlayerColor.RED, PlayerColor.BLUE};
+        int boardPosition = FIRST_FIELD_OFFSET;
+        for (int pieceColorIndex = 0; pieceColorIndex < 4; pieceColorIndex++) {
             for (int pieceOffset = 0; pieceOffset < 4; pieceOffset++) {
-                piecePositions.put(position++, new Piece(playerColors[pieceIndex], pieceOffset));
+                piecePositions.put(boardPosition++, new Piece(playerColorsInSpawnOrder[pieceColorIndex], pieceOffset));
             }
         }
     }
@@ -58,7 +54,9 @@ public class MenschAergereDichNichtGame {
     private int numberOfAttemptsToLeaveSpawn = 1;
 
     public int getPiecePosition(PlayerColor playerColor, int pieceNumber) {
-        return piecePositions.entrySet().stream().filter(e -> e.getValue().getPlayerColor() == playerColor && e.getValue().getIndex() == pieceNumber).map(Map.Entry::getKey).findFirst().get();
+        return piecePositions.entrySet().stream()
+                .filter(e -> e.getValue().getPlayerColor() == playerColor && e.getValue().getIndex() == pieceNumber)
+                .map(Map.Entry::getKey).findFirst().get();
     }
 
     public PlayerColor getPlayerColorOnTurn() {
