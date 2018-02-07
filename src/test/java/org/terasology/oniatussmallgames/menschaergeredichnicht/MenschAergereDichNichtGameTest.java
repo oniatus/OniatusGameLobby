@@ -78,19 +78,30 @@ public class MenschAergereDichNichtGameTest {
     public void shouldSpawnYellowPiecesOnSix() throws Exception {
         game.setPlayerOnTurn(PlayerColor.YELLOW);
         List<GameAction> possibleActions = game.findPossibleActions(6);
-        verifyGameActionFromTo(possibleActions.get(0),5,27);
-        verifyGameActionFromTo(possibleActions.get(1),6,27);
-        verifyGameActionFromTo(possibleActions.get(2),7,27);
-        verifyGameActionFromTo(possibleActions.get(3),8,27);
+        verifyGameActionFromTo(possibleActions.get(0), 5, 27);
+        verifyGameActionFromTo(possibleActions.get(1), 6, 27);
+        verifyGameActionFromTo(possibleActions.get(2), 7, 27);
+        verifyGameActionFromTo(possibleActions.get(3), 8, 27);
     }
+
     @Test
     public void shouldSpawnBluePiecesOnSix() throws Exception {
         game.setPlayerOnTurn(PlayerColor.BLUE);
         List<GameAction> possibleActions = game.findPossibleActions(6);
-        verifyGameActionFromTo(possibleActions.get(0),13,37);
-        verifyGameActionFromTo(possibleActions.get(1),14,37);
-        verifyGameActionFromTo(possibleActions.get(2),15,37);
-        verifyGameActionFromTo(possibleActions.get(3),16,37);
+        verifyGameActionFromTo(possibleActions.get(0), 13, 37);
+        verifyGameActionFromTo(possibleActions.get(1), 14, 37);
+        verifyGameActionFromTo(possibleActions.get(2), 15, 37);
+        verifyGameActionFromTo(possibleActions.get(3), 16, 37);
+    }
+
+    @Test
+    public void shouldSpawnRedPiecesOnSix() throws Exception {
+        game.setPlayerOnTurn(PlayerColor.RED);
+        List<GameAction> possibleActions = game.findPossibleActions(6);
+        verifyGameActionFromTo(possibleActions.get(0), 9, 47);
+        verifyGameActionFromTo(possibleActions.get(1), 10, 47);
+        verifyGameActionFromTo(possibleActions.get(2), 11, 47);
+        verifyGameActionFromTo(possibleActions.get(3), 12, 47);
     }
 
     private void failToLeaveSpawnThreeTimes() {
