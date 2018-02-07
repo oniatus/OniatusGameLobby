@@ -10,31 +10,9 @@ public class MenschAergereDichNichtGame {
     public static final int OFFSET_SPAWN_RED = 9;
     public static final int OFFSET_SPAWN_BLUE = 13;
     public static final int FIRST_FIELD_OFFSET = 1;
-    public static final int BOARD_BEGIN_INDEX = 17;
 
-    public void teleportPiece(int fromPosition, int toPosition) {
-        movePiece(fromPosition, toPosition);
-    }
 
-    private static class Piece {
-        private final PlayerColor playerColor;
-        private final int index;
-
-        public Piece(PlayerColor playerColor, int index) {
-            this.playerColor = playerColor;
-            this.index = index;
-        }
-
-        public PlayerColor getPlayerColor() {
-            return playerColor;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-    }
-
-    private Map<Integer, Piece> piecePositions = new HashMap<>();
+    private PiecePositionManager piecePositionManager = new PiecePositionManager();
 
     public MenschAergereDichNichtGame() {
         initializePiecesOnSpawn();
@@ -45,7 +23,7 @@ public class MenschAergereDichNichtGame {
         int boardPosition = FIRST_FIELD_OFFSET;
         for (int pieceColorIndex = 0; pieceColorIndex < 4; pieceColorIndex++) {
             for (int pieceOffset = 0; pieceOffset < 4; pieceOffset++) {
-                piecePositions.put(boardPosition++, new Piece(playerColorsInSpawnOrder[pieceColorIndex], pieceOffset));
+                piecePositionManager.addPiece(boardPosition++, new Piece(playerColorsInSpawnOrder[pieceColorIndex], pieceOffset));
             }
         }
     }
@@ -53,11 +31,6 @@ public class MenschAergereDichNichtGame {
     private PlayerColor playerOnTurn = PlayerColor.GREEN;
     private int numberOfAttemptsToLeaveSpawn = 1;
 
-    public int getPiecePosition(PlayerColor playerColor, int pieceNumber) {
-        return piecePositions.entrySet().stream()
-                .filter(e -> e.getValue().getPlayerColor() == playerColor && e.getValue().getIndex() == pieceNumber)
-                .map(Map.Entry::getKey).findFirst().get();
-    }
 
     public PlayerColor getPlayerColorOnTurn() {
         return playerOnTurn;
@@ -77,10 +50,8 @@ public class MenschAergereDichNichtGame {
     }
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnSpawn() {
-        return piecePositions.entrySet().stream()
-                .filter(e -> e.getValue().getPlayerColor() == playerOnTurn)
-                .filter(e -> e.getKey() < BOARD_BEGIN_INDEX)
-                .map(e -> new GameAction(e.getKey(),findSpawnPosition(playerOnTurn)))
+        return piecePositionManager.streamPiecesOnSpawn(playerOnTurn)
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn)))
                 .collect(Collectors.toList());
     }
 
@@ -99,10 +70,8 @@ public class MenschAergereDichNichtGame {
     }
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
-        return piecePositions.entrySet().stream()
-                .filter(e -> e.getValue().getPlayerColor() == playerOnTurn)
-                .filter(e -> e.getKey() >= BOARD_BEGIN_INDEX)
-                .map(e -> new GameAction(e.getKey(), e.getKey() + diceResult))
+        return piecePositionManager.streamPiecesOnBoard(playerOnTurn)
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), piecePositionManager.getPiecePosition(piece) + diceResult))
                 .collect(Collectors.toList());
     }
 
@@ -134,11 +103,14 @@ public class MenschAergereDichNichtGame {
     public void execute(GameAction gameAction) {
         int fromPosition = gameAction.getFromPosition();
         int toPosition = gameAction.getToPosition();
-        movePiece(fromPosition, toPosition);
+        piecePositionManager.movePiece(fromPosition, toPosition);
     }
 
-    private void movePiece(int fromPosition, int toPosition) {
-        Piece pieceToMove = piecePositions.remove(fromPosition);
-        piecePositions.put(toPosition, pieceToMove);
+    public int getPiecePosition(PlayerColor playerColor, int pieceIndex) {
+        return piecePositionManager.getPiecePosition(playerColor, pieceIndex);
+    }
+
+    public void teleportPiece(int fromPosition, int toPosition) {
+        piecePositionManager.movePiece(fromPosition, toPosition);
     }
 }
