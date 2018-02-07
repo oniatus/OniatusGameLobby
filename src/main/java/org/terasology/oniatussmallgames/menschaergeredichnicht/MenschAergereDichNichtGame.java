@@ -68,27 +68,7 @@ public class MenschAergereDichNichtGame {
     public List<GameAction> findPossibleActions(int diceResult) {
         ArrayList<GameAction> possibleActions = new ArrayList<>();
         if (diceResult == 6) {
-            if (playerOnTurn == PlayerColor.GREEN) {
-                possibleActions.add(new GameAction(1, 17));
-                possibleActions.add(new GameAction(2, 17));
-                possibleActions.add(new GameAction(3, 17));
-                possibleActions.add(new GameAction(4, 17));
-            } else if (playerOnTurn == PlayerColor.YELLOW) {
-                possibleActions.add(new GameAction(5, 27));
-                possibleActions.add(new GameAction(6, 27));
-                possibleActions.add(new GameAction(7, 27));
-                possibleActions.add(new GameAction(8, 27));
-            } else if (playerOnTurn == PlayerColor.BLUE) {
-                possibleActions.add(new GameAction(13, 37));
-                possibleActions.add(new GameAction(14, 37));
-                possibleActions.add(new GameAction(15, 37));
-                possibleActions.add(new GameAction(16, 37));
-            } else if (playerOnTurn == PlayerColor.RED) {
-                possibleActions.add(new GameAction(9, 47));
-                possibleActions.add(new GameAction(10, 47));
-                possibleActions.add(new GameAction(11, 47));
-                possibleActions.add(new GameAction(12, 47));
-            }
+            possibleActions.addAll(findPossibleActionsForPiecesOnSpawn());
         } else {
             possibleActions.addAll(findPossibleActionsForPiecesOnBoard(diceResult));
         }
@@ -96,6 +76,28 @@ public class MenschAergereDichNichtGame {
             nextPlayer();
         }
         return possibleActions;
+    }
+
+    private Collection<? extends GameAction> findPossibleActionsForPiecesOnSpawn() {
+        return piecePositions.entrySet().stream()
+                .filter(e -> e.getValue().getPlayerColor() == playerOnTurn)
+                .filter(e -> e.getKey() < BOARD_BEGIN_INDEX)
+                .map(e -> new GameAction(e.getKey(),findSpawnPosition(playerOnTurn)))
+                .collect(Collectors.toList());
+    }
+
+    private int findSpawnPosition(PlayerColor playerOnTurn) {
+        switch (playerOnTurn) {
+            case GREEN:
+                return 17;
+            case YELLOW:
+                return 27;
+            case BLUE:
+                return 37;
+            case RED:
+                return 47;
+        }
+        throw new RuntimeException();
     }
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
