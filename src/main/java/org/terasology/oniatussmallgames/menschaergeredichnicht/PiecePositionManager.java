@@ -34,9 +34,10 @@ class PiecePositionManager {
     }
 
 
-    public void movePiece(int fromPosition, int toPosition) {
+    public Piece movePiece(int fromPosition, int toPosition) {
         Piece pieceToMove = piecePositions.remove(fromPosition);
         piecePositions.put(toPosition, pieceToMove);
+        return pieceToMove;
     }
 
     public Stream<Piece> streamPiecesOnSpawn(PlayerColor playerOnTurnColor) {

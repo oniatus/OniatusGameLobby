@@ -40,9 +40,9 @@ public class MenschAergereDichNichtGame {
         ArrayList<GameAction> possibleActions = new ArrayList<>();
         if (diceResult == 6) {
             possibleActions.addAll(findPossibleActionsForPiecesOnSpawn());
-        } else {
-            possibleActions.addAll(findPossibleActionsForPiecesOnBoard(diceResult));
         }
+        possibleActions.addAll(findPossibleActionsForPiecesOnBoard(diceResult));
+
         if (numberOfAttemptsToLeaveSpawn++ == 3) {
             nextPlayer();
         }
@@ -51,7 +51,7 @@ public class MenschAergereDichNichtGame {
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnSpawn() {
         return piecePositionManager.streamPiecesOnSpawn(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn),false))
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn), false))
                 .collect(Collectors.toList());
     }
 
@@ -114,7 +114,7 @@ public class MenschAergereDichNichtGame {
         return piecePositionManager.getPiecePosition(playerColor, pieceIndex);
     }
 
-    public void teleportPiece(int fromPosition, int toPosition) {
-        piecePositionManager.movePiece(fromPosition, toPosition);
+    public Piece teleportPiece(int fromPosition, int toPosition) {
+        return piecePositionManager.movePiece(fromPosition, toPosition);
     }
 }
