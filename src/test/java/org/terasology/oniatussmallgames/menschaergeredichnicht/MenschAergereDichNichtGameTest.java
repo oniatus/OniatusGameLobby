@@ -156,19 +156,27 @@ public class MenschAergereDichNichtGameTest {
 
     @Test
     public void shouldNotAllowMoveOnSamePosition() throws Exception {
-        game.teleportPiece(9,50);
-        game.teleportPiece(10,51);
+        game.teleportPiece(9, 50);
+        game.teleportPiece(10, 51);
         game.setPlayerOnTurn(PlayerColor.RED);
         List<GameAction> possibleActions = game.findPossibleActions(1);
-        assertEquals(1,possibleActions.size());
+        assertEquals(1, possibleActions.size());
         GameAction gameAction = possibleActions.get(0);
-        assertEquals(51,gameAction.getFromPosition());
+        assertEquals(51, gameAction.getFromPosition());
+    }
+
+    @Test
+    public void shouldCaptureEnemyPiecesOnSamePosition() throws Exception {
+        Piece yellowPiece = game.teleportPiece(5, 17);
+        leaveSpawn();
+        assertEquals(5,game.getPiecePosition(yellowPiece.getPlayerColor(),yellowPiece.getIndex()));
+        assertEquals(17,game.getPiecePosition(PlayerColor.GREEN,0));
     }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
         assertEquals(game.getPlayerColorOnTurn(), piece.getPlayerColor());
         int piecePosition = game.getPiecePosition(piece.getPlayerColor(), piece.getIndex());
-        for (GameAction action : possibleActions){
+        for (GameAction action : possibleActions) {
             if (action.getFromPosition() == piecePosition) {
                 game.execute(action);
                 return;

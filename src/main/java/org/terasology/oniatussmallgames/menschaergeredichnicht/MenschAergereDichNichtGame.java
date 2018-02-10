@@ -82,7 +82,8 @@ public class MenschAergereDichNichtGame {
     private void filterActionsTargetingOwnPieces(List<GameAction> possibleActions) {
         Set<GameAction> actionsToRemove = new HashSet<>();
         for(GameAction action : possibleActions){
-            if(piecePositionManager.findPieceColorOnPosition(action.getToPosition()) == playerOnTurn){
+            Piece pieceOnPosition = piecePositionManager.findPieceOnPosition(action.getToPosition());
+            if(pieceOnPosition != null && pieceOnPosition.getPlayerColor() == playerOnTurn){
                 actionsToRemove.add(action);
             }
         }
@@ -117,10 +118,44 @@ public class MenschAergereDichNichtGame {
     public void execute(GameAction gameAction) {
         int fromPosition = gameAction.getFromPosition();
         int toPosition = gameAction.getToPosition();
+        Piece pieceOnPosition = piecePositionManager.findPieceOnPosition(toPosition);
+        if(pieceOnPosition != null){
+            movePieceBackToSpawn(pieceOnPosition);
+        }
         piecePositionManager.movePiece(fromPosition, toPosition);
         if (gameAction.isEndOfPly()) {
             nextPlayer();
         }
+    }
+
+    private void movePieceBackToSpawn(Piece piece) {
+        int pieceColorSpawnOffset = findSpawnOffset(piece.getPlayerColor());
+        int nextFreeSpawnAreaPosition = findNextFreeSpawnAreaPosition(pieceColorSpawnOffset);
+        teleportPiece(piecePositionManager.getPiecePosition(piece),nextFreeSpawnAreaPosition);
+    }
+
+    private int findNextFreeSpawnAreaPosition(int pieceColorSpawnOffset) {
+        for(int i = 0; i < 4; i++){
+            int spawnAreaPosition = pieceColorSpawnOffset + i;
+            if(piecePositionManager.findPieceOnPosition(spawnAreaPosition) == null){
+                return spawnAreaPosition;
+            }
+        }
+        throw new RuntimeException("Spawn area occupied");
+    }
+
+    private int findSpawnOffset(PlayerColor playerColor) {
+        switch (playerColor) {
+            case GREEN:
+                return OFFSET_SPAWN_GREEN;
+            case YELLOW:
+                return OFFSET_SPAWN_YELLOW;
+            case RED:
+                return OFFSET_SPAWN_RED;
+            case BLUE:
+                return OFFSET_SPAWN_BLUE;
+        }
+        throw new RuntimeException();
     }
 
     public int getPiecePosition(PlayerColor playerColor, int pieceIndex) {

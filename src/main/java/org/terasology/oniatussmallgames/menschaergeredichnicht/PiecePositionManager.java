@@ -46,11 +46,11 @@ class PiecePositionManager {
                 .filter(e -> e.getKey() < BOARD_BEGIN_INDEX).map(Map.Entry::getValue);
     }
 
-    public PlayerColor findPieceColorOnPosition(int position) {
+    public Piece findPieceOnPosition(int position) {
         Piece piece = piecePositions.get(position);
         if(piece == null){
             return null;
         }
-        return piece.getPlayerColor();
+        return piece;
     }
 }
