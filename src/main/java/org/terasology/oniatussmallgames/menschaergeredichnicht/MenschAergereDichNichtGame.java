@@ -94,6 +94,12 @@ public class MenschAergereDichNichtGame {
             }else{
                 return 17;
             }
+        }else if(fromPosition == 26){
+            if(playerColor == PlayerColor.YELLOW){
+                return 61;
+            }else{
+                return 27;
+            }
         }
         return ++fromPosition;
     }
@@ -183,5 +189,9 @@ public class MenschAergereDichNichtGame {
 
     public Piece teleportPiece(int fromPosition, int toPosition) {
         return piecePositionManager.movePiece(fromPosition, toPosition);
+    }
+
+    public int getPiecePosition(Piece piece) {
+        return getPiecePosition(piece.getPlayerColor(),piece.getIndex());
     }
 }
