@@ -100,6 +100,12 @@ public class MenschAergereDichNichtGame {
             }else{
                 return 27;
             }
+        }else if(fromPosition == 36){
+            if(playerColor == PlayerColor.BLUE){
+                return 68;
+            }else{
+                return 37;
+            }
         }
         return ++fromPosition;
     }
