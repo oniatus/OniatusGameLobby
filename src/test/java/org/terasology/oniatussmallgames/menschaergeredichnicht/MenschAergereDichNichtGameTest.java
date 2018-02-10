@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.terasology.oniatussmallgames.menschaergeredichnicht.MenschAergereDichNichtGame.*;
 
@@ -111,13 +112,38 @@ public class MenschAergereDichNichtGameTest {
     }
 
     @Test
-    public void lessThanSixAllowsOnlyPieceOnBoardToMove() throws Exception {
+    public void shouldAllowOnlyPiecesOnBoardToMoveWithLessThanSix() throws Exception {
         game.teleportPiece(1,17);
         List<GameAction> possibleActions = game.findPossibleActions(1);
         assertEquals(1,possibleActions.size());
         assertEquals(17,possibleActions.get(0).getFromPosition());
         assertEquals(18,possibleActions.get(0).getToPosition());
     }
+
+    @Test
+    public void shouldGiveAnExtraMoveAfterLeavingSpawn() throws Exception {
+        PlayerColor firstPlayerOnTurn = game.getPlayerColorOnTurn();
+        leaveSpawn();
+        PlayerColor playerOnTurnAfterLeavingSpawn = game.getPlayerColorOnTurn();
+        assertEquals(firstPlayerOnTurn,playerOnTurnAfterLeavingSpawn);
+    }
+
+    private void leaveSpawn() {
+        List<GameAction> possibleActions = game.findPossibleActions(6);
+        game.execute(possibleActions.get(0));
+    }
+
+    @Test
+    public void shouldMoveToNextPlayerAfterReqularMove() throws Exception {
+        PlayerColor firstPlayerOnTurn = game.getPlayerColorOnTurn();
+        leaveSpawn();
+        List<GameAction> possibleActions = game.findPossibleActions(1);
+        game.execute(possibleActions.get(0));
+        PlayerColor nextPlayerOnTurn = game.getPlayerColorOnTurn();
+        assertNotEquals(firstPlayerOnTurn,nextPlayerOnTurn);
+    }
+
+
 
     private void failToLeaveSpawnThreeTimes() {
         for (int i = 0; i < 3; i++) {

@@ -51,7 +51,7 @@ public class MenschAergereDichNichtGame {
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnSpawn() {
         return piecePositionManager.streamPiecesOnSpawn(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn)))
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn),false))
                 .collect(Collectors.toList());
     }
 
@@ -70,8 +70,9 @@ public class MenschAergereDichNichtGame {
     }
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
+        boolean isEndOfPly = diceResult != 6;
         return piecePositionManager.streamPiecesOnBoard(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), piecePositionManager.getPiecePosition(piece) + diceResult))
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), piecePositionManager.getPiecePosition(piece) + diceResult, isEndOfPly))
                 .collect(Collectors.toList());
     }
 
@@ -104,6 +105,9 @@ public class MenschAergereDichNichtGame {
         int fromPosition = gameAction.getFromPosition();
         int toPosition = gameAction.getToPosition();
         piecePositionManager.movePiece(fromPosition, toPosition);
+        if (gameAction.isEndOfPly()) {
+            nextPlayer();
+        }
     }
 
     public int getPiecePosition(PlayerColor playerColor, int pieceIndex) {
