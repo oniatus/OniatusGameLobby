@@ -71,9 +71,24 @@ public class MenschAergereDichNichtGame {
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
         boolean isEndOfPly = diceResult != 6;
-        return piecePositionManager.streamPiecesOnBoard(playerOnTurn)
+        List<GameAction> possibleActions = piecePositionManager.streamPiecesOnBoard(playerOnTurn)
                 .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), piecePositionManager.getPiecePosition(piece) + diceResult, isEndOfPly))
                 .collect(Collectors.toList());
+
+        filterActionsTargetingOwnPieces(possibleActions);
+        return possibleActions;
+    }
+
+    private void filterActionsTargetingOwnPieces(List<GameAction> possibleActions) {
+        Set<GameAction> actionsToRemove = new HashSet<>();
+        for(GameAction action : possibleActions){
+            for(GameAction action2 : possibleActions){
+                if(action.getToPosition() == action2.getFromPosition()){
+                    actionsToRemove.add(action);
+                }
+            }
+        }
+        possibleActions.removeAll(actionsToRemove);
     }
 
     private void nextPlayer() {
