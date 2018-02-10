@@ -180,7 +180,13 @@ public class MenschAergereDichNichtGameTest {
         assertEquals(57,game.getPiecePosition(greenPiece.getPlayerColor(),greenPiece.getIndex()));
     }
 
-
+    @Test
+    public void shouldForbidGreenHouseForOtherColor() throws Exception {
+        Piece redPiece = game.teleportPiece(9,56);
+        game.setPlayerOnTurn(PlayerColor.RED);
+        game.execute(game.findPossibleActions(1).get(0));
+        assertEquals(17,game.getPiecePosition(redPiece.getPlayerColor(),redPiece.getIndex()));
+    }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
         assertEquals(game.getPlayerColorOnTurn(), piece.getPlayerColor());

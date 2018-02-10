@@ -72,11 +72,30 @@ public class MenschAergereDichNichtGame {
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
         boolean isEndOfPly = diceResult != 6;
         List<GameAction> possibleActions = piecePositionManager.streamPiecesOnBoard(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), piecePositionManager.getPiecePosition(piece) + diceResult, isEndOfPly))
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findToPosition(diceResult, piece), isEndOfPly))
                 .collect(Collectors.toList());
 
         filterActionsTargetingOwnPieces(possibleActions);
         return possibleActions;
+    }
+
+    private int findToPosition(int diceResult, Piece piece) {
+        int targetPosition = piecePositionManager.getPiecePosition(piece);
+        for(int i = 0; i < diceResult; i++){
+            targetPosition = findNextPosition(targetPosition,piece.getPlayerColor());
+        }
+        return targetPosition;
+    }
+
+    private int findNextPosition(int fromPosition, PlayerColor playerColor) {
+        if(fromPosition == 56){
+            if(playerColor == PlayerColor.GREEN){
+                return 57;
+            }else{
+                return 17;
+            }
+        }
+        return ++fromPosition;
     }
 
     private void filterActionsTargetingOwnPieces(List<GameAction> possibleActions) {
