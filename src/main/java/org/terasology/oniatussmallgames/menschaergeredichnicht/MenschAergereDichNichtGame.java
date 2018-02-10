@@ -1,5 +1,7 @@
 package org.terasology.oniatussmallgames.menschaergeredichnicht;
 
+import org.apache.regexp.RE;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,6 +107,12 @@ public class MenschAergereDichNichtGame {
                 return 68;
             }else{
                 return 37;
+            }
+        }else  if(fromPosition == 46){
+            if(playerColor == PlayerColor.RED){
+                return 72;
+            }else {
+                return 47;
             }
         }
         return ++fromPosition;

@@ -219,6 +219,21 @@ public class MenschAergereDichNichtGameTest {
         assertEquals(37,game.getPiecePosition(greenPiece));
     }
 
+    @Test
+    public void shouldMoveRedInHouse() throws Exception {
+        Piece redPiece = game.teleportPiece(9,46);
+        game.setPlayerOnTurn(PlayerColor.RED);
+        executeActionForPiece(redPiece, game.findPossibleActions(1));
+        assertEquals(72,game.getPiecePosition(redPiece));
+    }
+
+    @Test
+    public void shouldForbidRedHouseForOtherColor() throws Exception {
+        Piece greenPiece = game.teleportPiece(1,46);
+        executeActionForPiece(greenPiece,game.findPossibleActions(1));
+        assertEquals(47,game.getPiecePosition(greenPiece));
+    }
+
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
         assertEquals(game.getPlayerColorOnTurn(), piece.getPlayerColor());
         int piecePosition = game.getPiecePosition(piece.getPlayerColor(), piece.getIndex());
