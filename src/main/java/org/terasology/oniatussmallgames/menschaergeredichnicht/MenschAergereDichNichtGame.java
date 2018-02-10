@@ -82,10 +82,8 @@ public class MenschAergereDichNichtGame {
     private void filterActionsTargetingOwnPieces(List<GameAction> possibleActions) {
         Set<GameAction> actionsToRemove = new HashSet<>();
         for(GameAction action : possibleActions){
-            for(GameAction action2 : possibleActions){
-                if(action.getToPosition() == action2.getFromPosition()){
-                    actionsToRemove.add(action);
-                }
+            if(piecePositionManager.findPieceColorOnPosition(action.getToPosition()) == playerOnTurn){
+                actionsToRemove.add(action);
             }
         }
         possibleActions.removeAll(actionsToRemove);
