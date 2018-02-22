@@ -22,7 +22,7 @@ class BoardPositions {
     public static final int FIRST_HOUSE_GREEN = 57;
     public static final int FIRST_HOUSE_YELLOW = 61;
     public static final int FIRST_HOUSE_RED = 69;
-    public static final int FIRST_HOUSE_BLUE = 68;
+    public static final int FIRST_HOUSE_BLUE = 65;
 
     public static final int SPAWN_POSITION_GREEN = 17;
     public static final int SPAWN_POSITION_YELLOW = 27;
