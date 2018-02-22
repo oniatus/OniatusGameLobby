@@ -5,11 +5,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -248,13 +246,13 @@ public class MenschAergereDichNichtGameTest {
 
     @Test
     public void shouldForbidJumpingOverOwnPiecesInHouse() throws Exception {
-        game.teleportPiece(1,57);
-        game.teleportPiece(2,58);
-        game.teleportPiece(3,59);
-        game.teleportPiece(4,56);
+        game.teleportPiece(1, 57);
+        game.teleportPiece(2, 58);
+        game.teleportPiece(3, 59);
+        game.teleportPiece(4, 56);
         //pieces in house cant move and piece on 56 is not allowed to jump over other pieces to 60
         List<GameAction> possibleActions = game.findPossibleActions(4);
-        assertEquals(0,possibleActions.size());
+        assertEquals(0, possibleActions.size());
     }
 
     @Test
@@ -262,12 +260,12 @@ public class MenschAergereDichNichtGameTest {
         MenschAergereDichNichtGameListener listener = mock(MenschAergereDichNichtGameListener.class);
         game.registerListener(listener);
         Piece pieceInFrontOfHouse = game.teleportPiece(1, 56);
-        game.teleportPiece(2,58);
-        game.teleportPiece(3,59);
-        game.teleportPiece(4,60);
+        game.teleportPiece(2, 58);
+        game.teleportPiece(3, 59);
+        game.teleportPiece(4, 60);
 
         List<GameAction> possibleActions = game.findPossibleActions(1);
-        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+        executeActionForPiece(pieceInFrontOfHouse, possibleActions);
 
         verify(listener).onPlayerWon(eq(PlayerColor.GREEN));
     }
@@ -278,12 +276,12 @@ public class MenschAergereDichNichtGameTest {
         game.registerListener(listener);
         game.setPlayerOnTurnColor(PlayerColor.YELLOW);
         Piece pieceInFrontOfHouse = game.teleportPiece(5, 26);
-        game.teleportPiece(6,62);
-        game.teleportPiece(7,63);
-        game.teleportPiece(8,64);
+        game.teleportPiece(6, 62);
+        game.teleportPiece(7, 63);
+        game.teleportPiece(8, 64);
 
         List<GameAction> possibleActions = game.findPossibleActions(1);
-        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+        executeActionForPiece(pieceInFrontOfHouse, possibleActions);
 
         verify(listener).onPlayerWon(eq(PlayerColor.YELLOW));
     }
@@ -294,12 +292,12 @@ public class MenschAergereDichNichtGameTest {
         game.registerListener(listener);
         game.setPlayerOnTurnColor(PlayerColor.RED);
         Piece pieceInFrontOfHouse = game.teleportPiece(9, 46);
-        game.teleportPiece(10,70);
-        game.teleportPiece(11,71);
-        game.teleportPiece(12,72);
+        game.teleportPiece(10, 70);
+        game.teleportPiece(11, 71);
+        game.teleportPiece(12, 72);
 
         List<GameAction> possibleActions = game.findPossibleActions(1);
-        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+        executeActionForPiece(pieceInFrontOfHouse, possibleActions);
 
         verify(listener).onPlayerWon(eq(PlayerColor.RED));
     }
@@ -310,14 +308,44 @@ public class MenschAergereDichNichtGameTest {
         game.registerListener(listener);
         game.setPlayerOnTurnColor(PlayerColor.BLUE);
         Piece pieceInFrontOfHouse = game.teleportPiece(13, 36);
-        game.teleportPiece(14,66);
-        game.teleportPiece(15,67);
-        game.teleportPiece(16,68);
+        game.teleportPiece(14, 66);
+        game.teleportPiece(15, 67);
+        game.teleportPiece(16, 68);
 
         List<GameAction> possibleActions = game.findPossibleActions(1);
-        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+        executeActionForPiece(pieceInFrontOfHouse, possibleActions);
 
         verify(listener).onPlayerWon(eq(PlayerColor.BLUE));
+    }
+
+    @Test(timeout = 5000)
+    public void smokeTest() throws Exception {
+        int numberOfGames = 500;
+        Map<PlayerColor, Integer> wins = new EnumMap<>(PlayerColor.class);
+        Arrays.stream(PlayerColor.values()).forEach(color -> wins.put(color, 0));
+        for (int i = 0; i < numberOfGames; i++) {
+            long seed = i;
+            PlayerColor winnerColor = playNewGameUntilPlayerWins(seed);
+            wins.put(winnerColor, wins.get(winnerColor) + 1);
+        }
+        wins.forEach((key, value) -> {
+            assertTrue(value > 0);
+        });
+    }
+
+    private PlayerColor playNewGameUntilPlayerWins(long seed) {
+        game = new MenschAergereDichNichtGame();
+        WinnerListener winnerListener = new WinnerListener();
+        game.registerListener(winnerListener);
+        Random random = new Random(seed);
+        while (winnerListener.winnerColor == null) {
+            List<GameAction> possibleActions = game.findPossibleActions(random.nextInt(6) + 1);
+            if (!possibleActions.isEmpty()) {
+                GameAction gameAction = possibleActions.get(random.nextInt(possibleActions.size()));
+                game.execute(gameAction);
+            }
+        }
+        return winnerListener.winnerColor;
     }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
@@ -348,5 +376,14 @@ public class MenschAergereDichNichtGameTest {
         assertEquals(startIndex + 1, game.getPiecePosition(colorToCheck, 1));
         assertEquals(startIndex + 2, game.getPiecePosition(colorToCheck, 2));
         assertEquals(startIndex + 3, game.getPiecePosition(colorToCheck, 3));
+    }
+
+    private static class WinnerListener implements MenschAergereDichNichtGameListener {
+        PlayerColor winnerColor;
+
+        @Override
+        public void onPlayerWon(PlayerColor playerColor) {
+            winnerColor = playerColor;
+        }
     }
 }
