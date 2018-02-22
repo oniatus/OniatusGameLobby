@@ -1,5 +1,7 @@
 package org.terasology.oniatussmallgames.menschaergeredichnicht;
 
+import org.terasology.game.Game;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,7 +11,7 @@ public class MenschAergereDichNichtGame {
 
 
     private PiecePositionManager piecePositionManager = new PiecePositionManager();
-    private PlayerColor playerOnTurn = PlayerColor.GREEN;
+    private PlayerColor playerOnTurnColor = PlayerColor.GREEN;
     private int numberOfAttemptsToLeaveSpawn = 1;
 
     public MenschAergereDichNichtGame() {
@@ -27,7 +29,7 @@ public class MenschAergereDichNichtGame {
     }
 
     public PlayerColor getPlayerColorOnTurn() {
-        return playerOnTurn;
+        return playerOnTurnColor;
     }
 
     public List<GameAction> findPossibleActions(int diceResult) {
@@ -36,7 +38,6 @@ public class MenschAergereDichNichtGame {
             possibleActions.addAll(findPossibleActionsForPiecesOnSpawn());
         }
         possibleActions.addAll(findPossibleActionsForPiecesOnBoard(diceResult));
-
         if (numberOfAttemptsToLeaveSpawn++ == 3) {
             nextPlayer();
         }
@@ -44,20 +45,58 @@ public class MenschAergereDichNichtGame {
     }
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnSpawn() {
-        return piecePositionManager.streamPiecesOnSpawn(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurn), false))
+        return piecePositionManager.streamPiecesOnSpawn(playerOnTurnColor)
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findSpawnPosition(playerOnTurnColor), false))
                 .collect(Collectors.toList());
     }
 
 
     private Collection<? extends GameAction> findPossibleActionsForPiecesOnBoard(int diceResult) {
         boolean isEndOfPly = diceResult != 6;
-        List<GameAction> possibleActions = piecePositionManager.streamPiecesOnBoard(playerOnTurn)
-                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findToPosition(diceResult, piece), isEndOfPly))
-                .collect(Collectors.toList());
-
+        List<GameAction> possibleActions = findDefaultMovementActions(diceResult, isEndOfPly);
+        filterActionsJumpingOverOwnPiecesInHouse(possibleActions);
+        filterActionsLeavingTheBoard(possibleActions);
         filterActionsTargetingOwnPieces(possibleActions);
         return possibleActions;
+    }
+
+    private void filterActionsLeavingTheBoard(List<GameAction> possibleActions) {
+        Set<GameAction> actionsToRemove = new HashSet<>();
+        for(GameAction gameAction : possibleActions){
+            int lastHousePosition = findLastHousePosition(playerOnTurnColor);
+            if(gameAction.getToPosition() > lastHousePosition){
+                actionsToRemove.add(gameAction);
+            }
+        }
+        possibleActions.removeAll(actionsToRemove);
+    }
+
+    private void filterActionsJumpingOverOwnPiecesInHouse(List<GameAction> possibleActions){
+        Set<GameAction> actionsToRemove = new HashSet<>();
+        for(GameAction gameAction : possibleActions){
+            if(areOwnPiecesInHouseOnPath(gameAction)){
+                actionsToRemove.add(gameAction);
+            }
+        }
+        possibleActions.removeAll(actionsToRemove);
+    }
+
+    private boolean areOwnPiecesInHouseOnPath(GameAction gameAction) {
+        int currentPosition = findNextPosition(gameAction.getFromPosition(), playerOnTurnColor);
+        while (currentPosition != gameAction.getToPosition()) {
+            Piece pieceOnPosition = piecePositionManager.findPieceOnPosition(currentPosition);
+            if (pieceOnPosition != null && isAnyHousePosition(currentPosition)) {
+                return true;
+            }
+            currentPosition = findNextPosition(currentPosition,playerOnTurnColor);
+        }
+        return false;
+    }
+
+    private List<GameAction> findDefaultMovementActions(int diceResult, boolean isEndOfPly) {
+        return piecePositionManager.streamPiecesOnBoard(playerOnTurnColor)
+                .map(piece -> new GameAction(piecePositionManager.getPiecePosition(piece), findToPosition(diceResult, piece), isEndOfPly))
+                .collect(Collectors.toList());
     }
 
     private int findToPosition(int diceResult, Piece piece) {
@@ -87,7 +126,7 @@ public class MenschAergereDichNichtGame {
         Set<GameAction> actionsToRemove = new HashSet<>();
         for (GameAction action : possibleActions) {
             Piece pieceOnPosition = piecePositionManager.findPieceOnPosition(action.getToPosition());
-            if (pieceOnPosition != null && pieceOnPosition.getPlayerColor() == playerOnTurn) {
+            if (pieceOnPosition != null && pieceOnPosition.getPlayerColor() == playerOnTurnColor) {
                 actionsToRemove.add(action);
             }
         }
@@ -95,12 +134,12 @@ public class MenschAergereDichNichtGame {
     }
 
     private void nextPlayer() {
-        playerOnTurn = findNextPlayerColor();
+        playerOnTurnColor = findNextPlayerColor();
         numberOfAttemptsToLeaveSpawn = 1;
     }
 
     private PlayerColor findNextPlayerColor() {
-        switch (playerOnTurn) {
+        switch (playerOnTurnColor) {
             case GREEN:
                 return PlayerColor.YELLOW;
             case YELLOW:
@@ -114,8 +153,8 @@ public class MenschAergereDichNichtGame {
         }
     }
 
-    public void setPlayerOnTurn(PlayerColor playerColor) {
-        this.playerOnTurn = playerColor;
+    public void setPlayerOnTurnColor(PlayerColor playerColor) {
+        this.playerOnTurnColor = playerColor;
         numberOfAttemptsToLeaveSpawn = 1;
     }
 

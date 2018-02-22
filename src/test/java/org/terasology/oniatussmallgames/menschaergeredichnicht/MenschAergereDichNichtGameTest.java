@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.terasology.oniatussmallgames.menschaergeredichnicht.BoardPositions.*;
-import static org.terasology.oniatussmallgames.menschaergeredichnicht.MenschAergereDichNichtGame.*;
 
 public class MenschAergereDichNichtGameTest {
 
@@ -79,7 +78,7 @@ public class MenschAergereDichNichtGameTest {
 
     @Test
     public void shouldSpawnYellowPiecesOnSix() throws Exception {
-        game.setPlayerOnTurn(PlayerColor.YELLOW);
+        game.setPlayerOnTurnColor(PlayerColor.YELLOW);
         List<GameAction> possibleActions = game.findPossibleActions(6);
         verifyGameActionFromTo(possibleActions.get(0), 5, 27);
         verifyGameActionFromTo(possibleActions.get(1), 6, 27);
@@ -89,7 +88,7 @@ public class MenschAergereDichNichtGameTest {
 
     @Test
     public void shouldSpawnBluePiecesOnSix() throws Exception {
-        game.setPlayerOnTurn(PlayerColor.BLUE);
+        game.setPlayerOnTurnColor(PlayerColor.BLUE);
         List<GameAction> possibleActions = game.findPossibleActions(6);
         verifyGameActionFromTo(possibleActions.get(0), 13, 37);
         verifyGameActionFromTo(possibleActions.get(1), 14, 37);
@@ -99,7 +98,7 @@ public class MenschAergereDichNichtGameTest {
 
     @Test
     public void shouldSpawnRedPiecesOnSix() throws Exception {
-        game.setPlayerOnTurn(PlayerColor.RED);
+        game.setPlayerOnTurnColor(PlayerColor.RED);
         List<GameAction> possibleActions = game.findPossibleActions(6);
         verifyGameActionFromTo(possibleActions.get(0), 9, 47);
         verifyGameActionFromTo(possibleActions.get(1), 10, 47);
@@ -159,7 +158,7 @@ public class MenschAergereDichNichtGameTest {
     public void shouldNotAllowMoveOnSamePosition() throws Exception {
         game.teleportPiece(9, 50);
         game.teleportPiece(10, 51);
-        game.setPlayerOnTurn(PlayerColor.RED);
+        game.setPlayerOnTurnColor(PlayerColor.RED);
         List<GameAction> possibleActions = game.findPossibleActions(1);
         assertEquals(1, possibleActions.size());
         GameAction gameAction = possibleActions.get(0);
@@ -193,7 +192,7 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldForbidGreenHouseForOtherColor() throws Exception {
         Piece redPiece = game.teleportPiece(9, 56);
-        game.setPlayerOnTurn(PlayerColor.RED);
+        game.setPlayerOnTurnColor(PlayerColor.RED);
         game.execute(game.findPossibleActions(1).get(0));
         assertEquals(17, game.getPiecePosition(redPiece.getPlayerColor(), redPiece.getIndex()));
     }
@@ -201,7 +200,7 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldMoveYellowInHouse() throws Exception {
         Piece yellowPiece = game.teleportPiece(5, 26);
-        game.setPlayerOnTurn(PlayerColor.YELLOW);
+        game.setPlayerOnTurnColor(PlayerColor.YELLOW);
         executeActionForPiece(yellowPiece, game.findPossibleActions(1));
         assertEquals(61, game.getPiecePosition(yellowPiece));
     }
@@ -209,7 +208,7 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldForbidYellowHouseForOtherColor() throws Exception {
         Piece bluePiece = game.teleportPiece(13, 26);
-        game.setPlayerOnTurn(PlayerColor.BLUE);
+        game.setPlayerOnTurnColor(PlayerColor.BLUE);
         executeActionForPiece(bluePiece, game.findPossibleActions(1));
         assertEquals(27, game.getPiecePosition(bluePiece));
     }
@@ -217,7 +216,7 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldMoveBlueInHouse() throws Exception {
         Piece bluePiece = game.teleportPiece(13, 36);
-        game.setPlayerOnTurn(PlayerColor.BLUE);
+        game.setPlayerOnTurnColor(PlayerColor.BLUE);
         executeActionForPiece(bluePiece, game.findPossibleActions(1));
         assertEquals(68, game.getPiecePosition(bluePiece));
     }
@@ -232,7 +231,7 @@ public class MenschAergereDichNichtGameTest {
     @Test
     public void shouldMoveRedInHouse() throws Exception {
         Piece redPiece = game.teleportPiece(9, 46);
-        game.setPlayerOnTurn(PlayerColor.RED);
+        game.setPlayerOnTurnColor(PlayerColor.RED);
         executeActionForPiece(redPiece, game.findPossibleActions(1));
         assertEquals(72, game.getPiecePosition(redPiece));
     }
@@ -242,6 +241,17 @@ public class MenschAergereDichNichtGameTest {
         Piece greenPiece = game.teleportPiece(1, 46);
         executeActionForPiece(greenPiece, game.findPossibleActions(1));
         assertEquals(47, game.getPiecePosition(greenPiece));
+    }
+
+    @Test
+    public void shouldForbidJumpingOverOwnPiecesInHouse() throws Exception {
+        game.teleportPiece(1,57);
+        game.teleportPiece(2,58);
+        game.teleportPiece(3,59);
+        game.teleportPiece(4,56);
+        //pieces in house cant move and piece on 56 is not allowed to jump over other pieces to 60
+        List<GameAction> possibleActions = game.findPossibleActions(4);
+        assertEquals(0,possibleActions.size());
     }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {

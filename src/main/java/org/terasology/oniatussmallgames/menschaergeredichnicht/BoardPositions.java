@@ -84,4 +84,19 @@ class BoardPositions {
     static int findSpawnOffset(PlayerColor playerColor) {
         return SPAWN_OFFSETS.get(playerColor);
     }
+
+    public static boolean isAnyHousePosition(int toPosition) {
+        for (int houseEntry : HOUSE_ENTRIES.values()) {
+            for (int offset = 0; offset < 4; offset++) {
+                if (toPosition == houseEntry + offset) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static int findLastHousePosition(PlayerColor playerColor) {
+        return findFirstHousePosition(playerColor) + 3;
+    }
 }
