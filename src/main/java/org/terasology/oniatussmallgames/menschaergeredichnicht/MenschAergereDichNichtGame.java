@@ -1,7 +1,5 @@
 package org.terasology.oniatussmallgames.menschaergeredichnicht;
 
-import org.terasology.game.Game;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,6 +11,7 @@ public class MenschAergereDichNichtGame {
     private PiecePositionManager piecePositionManager = new PiecePositionManager();
     private PlayerColor playerOnTurnColor = PlayerColor.GREEN;
     private int numberOfAttemptsToLeaveSpawn = 1;
+    private List<MenschAergereDichNichtGameListener> listeners = new ArrayList<>();
 
     public MenschAergereDichNichtGame() {
         initializePiecesOnSpawn();
@@ -62,19 +61,19 @@ public class MenschAergereDichNichtGame {
 
     private void filterActionsLeavingTheBoard(List<GameAction> possibleActions) {
         Set<GameAction> actionsToRemove = new HashSet<>();
-        for(GameAction gameAction : possibleActions){
+        for (GameAction gameAction : possibleActions) {
             int lastHousePosition = findLastHousePosition(playerOnTurnColor);
-            if(gameAction.getToPosition() > lastHousePosition){
+            if (gameAction.getToPosition() > lastHousePosition) {
                 actionsToRemove.add(gameAction);
             }
         }
         possibleActions.removeAll(actionsToRemove);
     }
 
-    private void filterActionsJumpingOverOwnPiecesInHouse(List<GameAction> possibleActions){
+    private void filterActionsJumpingOverOwnPiecesInHouse(List<GameAction> possibleActions) {
         Set<GameAction> actionsToRemove = new HashSet<>();
-        for(GameAction gameAction : possibleActions){
-            if(areOwnPiecesInHouseOnPath(gameAction)){
+        for (GameAction gameAction : possibleActions) {
+            if (areOwnPiecesInHouseOnPath(gameAction)) {
                 actionsToRemove.add(gameAction);
             }
         }
@@ -88,7 +87,7 @@ public class MenschAergereDichNichtGame {
             if (pieceOnPosition != null && isAnyHousePosition(currentPosition)) {
                 return true;
             }
-            currentPosition = findNextPosition(currentPosition,playerOnTurnColor);
+            currentPosition = findNextPosition(currentPosition, playerOnTurnColor);
         }
         return false;
     }
@@ -166,9 +165,25 @@ public class MenschAergereDichNichtGame {
             movePieceBackToSpawn(pieceOnPosition);
         }
         piecePositionManager.movePiece(fromPosition, toPosition);
+        checkWinner();
         if (gameAction.isEndOfPly()) {
             nextPlayer();
         }
+    }
+
+    private void checkWinner() {
+        if (isCurrentPlayerWinner()) {
+            listeners.forEach(l -> l.onPlayerWon(playerOnTurnColor));
+        }
+    }
+
+    private boolean isCurrentPlayerWinner() {
+        for (int housePosition = findFirstHousePosition(playerOnTurnColor); housePosition <= findLastHousePosition(playerOnTurnColor); housePosition++) {
+            if (piecePositionManager.findPieceOnPosition(housePosition) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void movePieceBackToSpawn(Piece piece) {
@@ -198,5 +213,9 @@ public class MenschAergereDichNichtGame {
 
     public int getPiecePosition(Piece piece) {
         return getPiecePosition(piece.getPlayerColor(), piece.getIndex());
+    }
+
+    public void registerListener(MenschAergereDichNichtGameListener listener) {
+        listeners.add(listener);
     }
 }

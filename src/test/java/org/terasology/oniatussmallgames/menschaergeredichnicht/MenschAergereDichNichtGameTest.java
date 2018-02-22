@@ -10,6 +10,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.terasology.oniatussmallgames.menschaergeredichnicht.BoardPositions.*;
 
 public class MenschAergereDichNichtGameTest {
@@ -252,6 +255,21 @@ public class MenschAergereDichNichtGameTest {
         //pieces in house cant move and piece on 56 is not allowed to jump over other pieces to 60
         List<GameAction> possibleActions = game.findPossibleActions(4);
         assertEquals(0,possibleActions.size());
+    }
+
+    @Test
+    public void shouldAllowGreenToWinTheGame() throws Exception {
+        MenschAergereDichNichtGameListener listener = mock(MenschAergereDichNichtGameListener.class);
+        game.registerListener(listener);
+        Piece pieceInFrontOfHouse = game.teleportPiece(1, 56);
+        game.teleportPiece(2,58);
+        game.teleportPiece(3,59);
+        game.teleportPiece(4,60);
+
+        List<GameAction> possibleActions = game.findPossibleActions(1);
+        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+
+        verify(listener).onPlayerWon(eq(PlayerColor.GREEN));
     }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
