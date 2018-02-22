@@ -167,72 +167,81 @@ public class MenschAergereDichNichtGameTest {
     }
 
     @Test
-    public void shouldCaptureEnemyPiecesOnSamePosition() throws Exception {
+    public void shouldCaptureEnemyPiecesWhenLeavingSpawn() throws Exception {
         Piece yellowPiece = game.teleportPiece(5, 17);
         leaveSpawn();
-        assertEquals(5,game.getPiecePosition(yellowPiece.getPlayerColor(),yellowPiece.getIndex()));
-        assertEquals(17,game.getPiecePosition(PlayerColor.GREEN,0));
+        assertEquals(5, game.getPiecePosition(yellowPiece.getPlayerColor(), yellowPiece.getIndex()));
+        assertEquals(17, game.getPiecePosition(PlayerColor.GREEN, 0));
+    }
+
+    @Test
+    public void shouldCaptureEnemyPiecesWhileMovingOnTheBoard() throws Exception {
+        Piece yellowPiece = game.teleportPiece(5, 19);
+        Piece greenPiece = game.teleportPiece(1, 18);
+        List<GameAction> possibleActions = game.findPossibleActions(1);
+        executeActionForPiece(greenPiece, possibleActions);
+        assertEquals(5, game.getPiecePosition(yellowPiece));
     }
 
     @Test
     public void shouldMoveGreenInHouse() throws Exception {
         Piece greenPiece = game.teleportPiece(1, 56);
         game.execute(game.findPossibleActions(1).get(0));
-        assertEquals(57,game.getPiecePosition(greenPiece.getPlayerColor(),greenPiece.getIndex()));
+        assertEquals(57, game.getPiecePosition(greenPiece.getPlayerColor(), greenPiece.getIndex()));
     }
 
     @Test
     public void shouldForbidGreenHouseForOtherColor() throws Exception {
-        Piece redPiece = game.teleportPiece(9,56);
+        Piece redPiece = game.teleportPiece(9, 56);
         game.setPlayerOnTurn(PlayerColor.RED);
         game.execute(game.findPossibleActions(1).get(0));
-        assertEquals(17,game.getPiecePosition(redPiece.getPlayerColor(),redPiece.getIndex()));
+        assertEquals(17, game.getPiecePosition(redPiece.getPlayerColor(), redPiece.getIndex()));
     }
 
     @Test
     public void shouldMoveYellowInHouse() throws Exception {
         Piece yellowPiece = game.teleportPiece(5, 26);
         game.setPlayerOnTurn(PlayerColor.YELLOW);
-        executeActionForPiece(yellowPiece,game.findPossibleActions(1));
-        assertEquals(61,game.getPiecePosition(yellowPiece));
+        executeActionForPiece(yellowPiece, game.findPossibleActions(1));
+        assertEquals(61, game.getPiecePosition(yellowPiece));
     }
 
     @Test
     public void shouldForbidYellowHouseForOtherColor() throws Exception {
         Piece bluePiece = game.teleportPiece(13, 26);
         game.setPlayerOnTurn(PlayerColor.BLUE);
-        executeActionForPiece(bluePiece,game.findPossibleActions(1));
-        assertEquals(27,game.getPiecePosition(bluePiece));
+        executeActionForPiece(bluePiece, game.findPossibleActions(1));
+        assertEquals(27, game.getPiecePosition(bluePiece));
     }
 
     @Test
     public void shouldMoveBlueInHouse() throws Exception {
         Piece bluePiece = game.teleportPiece(13, 36);
         game.setPlayerOnTurn(PlayerColor.BLUE);
-        executeActionForPiece(bluePiece,game.findPossibleActions(1));
-        assertEquals(68,game.getPiecePosition(bluePiece));
+        executeActionForPiece(bluePiece, game.findPossibleActions(1));
+        assertEquals(68, game.getPiecePosition(bluePiece));
     }
 
     @Test
     public void shouldForbidBlueHouseForOtherColor() throws Exception {
-        Piece greenPiece = game.teleportPiece(1,36);
-        executeActionForPiece(greenPiece,game.findPossibleActions(1));
-        assertEquals(37,game.getPiecePosition(greenPiece));
+        Piece greenPiece = game.teleportPiece(1, 36);
+        executeActionForPiece(greenPiece, game.findPossibleActions(1));
+        assertEquals(37, game.getPiecePosition(greenPiece));
     }
 
     @Test
     public void shouldMoveRedInHouse() throws Exception {
-        Piece redPiece = game.teleportPiece(9,46);
+        Piece redPiece = game.teleportPiece(9, 46);
         game.setPlayerOnTurn(PlayerColor.RED);
         executeActionForPiece(redPiece, game.findPossibleActions(1));
-        assertEquals(72,game.getPiecePosition(redPiece));
+        assertEquals(72, game.getPiecePosition(redPiece));
     }
 
     @Test
     public void shouldForbidRedHouseForOtherColor() throws Exception {
-        Piece greenPiece = game.teleportPiece(1,46);
-        executeActionForPiece(greenPiece,game.findPossibleActions(1));
-        assertEquals(47,game.getPiecePosition(greenPiece));
+        Piece greenPiece = game.teleportPiece(1, 46);
+        executeActionForPiece(greenPiece, game.findPossibleActions(1));
+        assertEquals(47, game.getPiecePosition(greenPiece));
     }
 
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
