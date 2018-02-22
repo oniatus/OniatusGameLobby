@@ -272,6 +272,22 @@ public class MenschAergereDichNichtGameTest {
         verify(listener).onPlayerWon(eq(PlayerColor.GREEN));
     }
 
+    @Test
+    public void shouldAllowYellowToWinTheGame() throws Exception {
+        MenschAergereDichNichtGameListener listener = mock(MenschAergereDichNichtGameListener.class);
+        game.registerListener(listener);
+        game.setPlayerOnTurnColor(PlayerColor.YELLOW);
+        Piece pieceInFrontOfHouse = game.teleportPiece(5, 26);
+        game.teleportPiece(6,62);
+        game.teleportPiece(7,63);
+        game.teleportPiece(8,64);
+
+        List<GameAction> possibleActions = game.findPossibleActions(1);
+        executeActionForPiece(pieceInFrontOfHouse,possibleActions);
+
+        verify(listener).onPlayerWon(eq(PlayerColor.YELLOW));
+    }
+
     private void executeActionForPiece(Piece piece, List<GameAction> possibleActions) {
         assertEquals(game.getPlayerColorOnTurn(), piece.getPlayerColor());
         int piecePosition = game.getPiecePosition(piece.getPlayerColor(), piece.getIndex());
