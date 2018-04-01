@@ -23,8 +23,14 @@ All textual documentation is maintained in this single document.
 * [Devlog](#Devlog)
 
 # Release Notes
+- none yet ;)
 
 # Features
+
+- Gameplay Module
+- Generates a glass lobby on startup and empty chunks elsewhere
+- Debug commands:
+  - Spawn a game board: `spawnBoard <x> <y> <z>`
 
 # Devlog
 
@@ -39,6 +45,79 @@ So our board x-axis can directly be transferred to Terasology but the y-axis has
 To have more control over the board spawning, the logic will be triggered by an event which can then be used in a 
 debug command or later on in the actual logic. To test the correct wiring from the event to a spawn of blocks,
 the module tests will be used.
+A first try of such an integration test would look like this:
+```
+    @Test
+    public void shouldGenerateBoardOnEvent() {
+        WorldProvider worldProvider = getHostContext().get(WorldProvider.class);
+        EntityRef worldEntity = worldProvider.getWorldEntity();
+        worldEntity.send(new GenerateBoardBlocksEvent(new Vector3i(0, 10, 0)));
+        Block upperLeftCorner = worldProvider.getBlock(0, 10, 0);
+        assertEquals(MODULE_NAME + ":boardDefault", upperLeftCorner.getURI().toString());
+        Block lowerRightCorner = worldProvider.getBlock(12, 10, 12);
+        assertEquals(MODULE_NAME + ":boardDefault", lowerRightCorner.getURI().toString());
+        Block field51 = worldProvider.getBlock(5, 10, 8);
+        assertEquals(MODULE_NAME + ":boardSW", field51.getURI().toString());
+    }
+```
+Testing only some major blocks will be enough as the whole generation logic will be a simple lookup class 
+and very easy to validate once ingame. 
+As this kind of mapping logic is almost certain to never change a unit test for each field is not needed.
+
+Adding a debug command is very simple:
+```
+@RegisterSystem
+public class ManualDebugCommands extends BaseComponentSystem {
+
+    @Command
+    public void spawnBoard(@Sender EntityRef sender, @CommandParam("x") int x, @CommandParam("y") int y, @CommandParam("z") int z) {
+        sender.send(new GenerateBoardBlocksEvent(new Vector3i(x, y, z)));
+    }
+}
+```
+
+The handling logic takes place in another system:
+```
+    @In
+    private WorldProvider worldProvider;
+    @In
+    private BlockManager blockManager;
+
+    @ReceiveEvent
+    public void onGenerateBoardBlocks(GenerateBoardBlocksEvent event, EntityRef entity){
+        Vector3i delta = event.getUpperLeftCorner();
+        for (BoardWorldLookup.BoardBlock boardBlock : BoardWorldLookup.getAllBoardBlocks()) {
+            Block block = blockManager.getBlock(boardBlock.getBlockUri());
+            Vector3i position = new Vector3i(delta).addX(boardBlock.getDx()).addZ(boardBlock.getDz());
+            worldProvider.setBlock(position, block);
+        }
+
+    }
+```
+
+The `BoardWorldLookup` contains a hardcoded tileset of the board:
+```
+    private static final String[][] BOARD = new String[][]{
+            {"D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D"},
+            {"D", "GH", "GH", "D", "D", "SE", "EW", "YS", "D", "D", "YH", "YH", "D"},
+            {"D", "GH", "GH", "D", "D", "NS", "YH", "NS", "D", "D", "YH", "YH", "D"},
+            {"D", "D", "D", "D", "D", "NS", "YH", "NS", "D", "D", "D", "D", "D"},
+            {"D", "D", "D", "D", "D", "NS", "YH", "NS", "D", "D", "D", "D", "D"},
+            {"D", "GS", "EW", "EW", "EW", "NW", "YH", "NE", "EW", "EW", "EW", "SW", "D"},
+            {"D", "NS", "GH", "GH", "GH", "GH", "D", "BH", "BH", "BH", "BH", "NS", "D"},
+            {"D", "NE", "EW", "EW", "EW", "SW", "RH", "SE", "EW", "EW", "EW", "BS", "D"},
+            {"D", "D", "D", "D", "D", "NS", "RH", "NS", "D", "D", "D", "D", "D"},
+            {"D", "D", "D", "D", "D", "NS", "RH", "NS", "D", "D", "D", "D", "D"},
+            {"D", "RH", "RH", "D", "D", "NS", "RH", "NS", "D", "D", "BH", "BH", "D"},
+            {"D", "RH", "RH", "D", "D", "RS", "EW", "NW", "D", "D", "BH", "BH", "D"},
+            {"D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D"}
+    };
+```
+These values are only used inside the class, the outside view is coordinate offsets and block uris.
+The conversion from the previous field indices to x/z-offsets will also go in this lookup class.
+
+Final result ingame:
+![Game Board Ingame 1](doc/board1.jpg "Board Ingame 1")
 
 ### First backend game logic
 The game logic of "Mensch ärgere dich nicht" is an interesting programming exercise because of the different pathing
