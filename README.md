@@ -30,6 +30,16 @@ All textual documentation is maintained in this single document.
 
 ## 0.0.1
 
+### Spawning the game board ingame
+To transfer the game coordinates to Terasology coordinates and then spawn blocks for the
+game positions, we should first have a look at the Terasology coordinate system.
+![Terasology Coordinates](doc/terasology_coordinates.jpg "coordinates")
+Standing on the x-axis, the z-axis will decreases instead of increasing like our own y-axis.
+So our board x-axis can directly be transferred to Terasology but the y-axis has to be multiplied by -1.
+To have more control over the board spawning, the logic will be triggered by an event which can then be used in a 
+debug command or later on in the actual logic. To test the correct wiring from the event to a spawn of blocks,
+the module tests will be used.
+
 ### First backend game logic
 The game logic of "Mensch ärgere dich nicht" is an interesting programming exercise because of the different pathing
 for each color at their house and because of the special move logic, e.g. pieces are not allowed
