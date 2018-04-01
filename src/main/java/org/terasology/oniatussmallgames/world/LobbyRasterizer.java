@@ -22,9 +22,11 @@ public class LobbyRasterizer implements WorldRasterizer {
 
     @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
-        for(int x = CHUNK_REGION.minX(); x <= CHUNK_REGION.maxX();x++){
-            for(int z = CHUNK_REGION.minZ(); z <= CHUNK_REGION.maxZ(); z++){
-                chunk.setBlock(x, 0, z, glass);
+        if (chunk.getChunkWorldOffsetY() == 0) {
+            for (int x = CHUNK_REGION.minX(); x <= CHUNK_REGION.maxX(); x++) {
+                for (int z = CHUNK_REGION.minZ(); z <= CHUNK_REGION.maxZ(); z++) {
+                    chunk.setBlock(x, 0, z, glass);
+                }
             }
         }
     }
