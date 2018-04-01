@@ -7,5 +7,6 @@
     "dependencies" : [
         {"id": "engine", "minVersion": "1.5.1"}
         ],
-    "serverSideOnly" : false
+    "serverSideOnly" : false,
+    isGameplay: true
 }
