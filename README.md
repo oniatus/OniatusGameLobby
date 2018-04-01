@@ -49,6 +49,10 @@ A first try of such an integration test would look like this:
 ```
     @Test
     public void shouldGenerateBoardOnEvent() {
+        //board is 13x13, generate chunks first, otherwise everything will be unloaded
+        forceAndWaitForGeneration(new Vector3i(0,10,0));
+        forceAndWaitForGeneration(new Vector3i(13,10,13));
+
         WorldProvider worldProvider = getHostContext().get(WorldProvider.class);
         EntityRef worldEntity = worldProvider.getWorldEntity();
         worldEntity.send(new GenerateBoardBlocksEvent(new Vector3i(0, 10, 0)));
